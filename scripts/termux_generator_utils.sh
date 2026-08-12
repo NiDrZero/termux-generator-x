@@ -62,6 +62,36 @@ apply_patches() {
         echo "[*] No .patch files found in $srcdir. Skipping."
     else
         for patch in $patches; do
+            # Some patches target files belonging to an optional component
+            # (e.g. termux-x11) that may not have been cloned at all when
+            # that component was disabled via a --disable-* flag. Applying
+            # such a patch would always fail with "can't find file to
+            # patch", aborting the whole build for a component we never
+            # intended to build. Detect this by checking whether every
+            # pre-image file referenced by the patch (the "--- a/<path>"
+            # lines) actually exists in the target tree; if NONE of them
+            # do, the patch's target component is simply absent, so skip it
+            # instead of hard-failing. If only SOME are missing, that's a
+            # real mismatch, so fall through to the normal apply attempt
+            # and let it fail loudly.
+            local targets=$(grep -oE '^--- a/.+' "$patch" | sed -E 's#^--- a/##')
+            if [ -n "$targets" ]; then
+                local any_present=0
+                local any_missing=0
+                while IFS= read -r target; do
+                    [ -z "$target" ] && continue
+                    if [ -e "$target" ]; then
+                        any_present=1
+                    else
+                        any_missing=1
+                    fi
+                done <<< "$targets"
+                if [ "$any_present" -eq 0 ] && [ "$any_missing" -eq 1 ]; then
+                    echo "[*] Skipping patch: $(basename "$patch") (target component not present, likely disabled)"
+                    continue
+                fi
+            fi
+
             echo "[*] Applying patch: $(basename "$patch")"
             if ! patch -p1 < "$patch"; then
                 echo "[!] Failed to apply patch: $(basename "$patch")"
