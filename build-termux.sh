@@ -1,6 +1,17 @@
 #!/bin/bash
-set -e -u -o pipefail
+set -Eeuo pipefail
 # Wechsel zum Verzeichnis, in dem das Skript liegt
+
+# Print the failing command, its exit code, the line number, and the
+# enclosing function whenever any command fails, so CI logs are
+# self-explanatory instead of a bare "Process completed with exit code 1".
+# -E (errtrace) is required for this trap to also fire inside functions
+# sourced from the scripts/ directory (e.g. download(), patch_apps()).
+on_error() {
+    local exit_code=$?
+    echo "[ERROR] Command failed with exit code ${exit_code} at ${BASH_SOURCE[1]:-$0}:${BASH_LINENO[0]} (function: ${FUNCNAME[1]:-main}): ${BASH_COMMAND}" >&2
+}
+trap on_error ERR
 
 cd "$(realpath "$(dirname "$0")")"
 

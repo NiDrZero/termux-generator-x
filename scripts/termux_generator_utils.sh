@@ -1,3 +1,31 @@
+# Funktion, um flüchtige Netzwerkfehler beim Klonen abzufangen (z.B. HTTP/2
+# stream resets, connection resets) durch mehrere Versuche mit Backoff.
+# Usage: git_clone_retry <git clone args...>
+git_clone_retry() {
+    local max_attempts=3
+    local delay=5
+    local attempt=1
+
+    while (( attempt <= max_attempts )); do
+        if git clone "$@"; then
+            return 0
+        fi
+
+        local status=$?
+        echo "[!] git clone failed (exit ${status}, attempt ${attempt}/${max_attempts}): git clone $*" >&2
+
+        if (( attempt < max_attempts )); then
+            echo "[*] Retrying in ${delay}s..." >&2
+            sleep "$delay"
+            delay=$(( delay * 2 ))
+        fi
+        (( attempt++ ))
+    done
+
+    echo "[!] git clone permanently failed after ${max_attempts} attempts: git clone $*" >&2
+    return 1
+}
+
 portable_sed_i() {
     if sed v </dev/null 2> /dev/null; then
         sed -i "$@"
