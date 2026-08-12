@@ -1,12 +1,21 @@
 # Funktion, um flüchtige Netzwerkfehler beim Klonen abzufangen (z.B. HTTP/2
 # stream resets, connection resets) durch mehrere Versuche mit Backoff.
 # Usage: git_clone_retry <git clone args...>
+# NOTE: assumes the destination directory is always the last argument,
+# which holds for every call site in this repo.
 git_clone_retry() {
     local max_attempts=3
     local delay=5
     local attempt=1
+    local dest="${*: -1}"
 
     while (( attempt <= max_attempts )); do
+        # A previous attempt that died mid-transfer (killed process, dropped
+        # connection) can leave a non-empty partial checkout behind, which
+        # makes git refuse to retry with "destination path already exists
+        # and is not an empty directory". Clear it before every attempt.
+        rm -rf -- "$dest"
+
         if git clone "$@"; then
             return 0
         fi
@@ -22,6 +31,7 @@ git_clone_retry() {
         (( attempt++ ))
     done
 
+    rm -rf -- "$dest"
     echo "[!] git clone permanently failed after ${max_attempts} attempts: git clone $*" >&2
     return 1
 }
