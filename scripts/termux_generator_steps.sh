@@ -62,14 +62,30 @@ download() {
     if [[ "$TERMUX_APP_TYPE" == "f-droid" ]]; then
         git_clone_retry --depth 1 https://github.com/termux/termux-packages.git               termux-packages-main
         
-        [ -z "${DISABLE_TASKER}" ] && git_clone_retry --depth 1 https://github.com/termux/termux-tasker.git                 termux-apps-main/termux-tasker
-        [ -z "${DISABLE_FLOAT}" ] && git_clone_retry --depth 1 https://github.com/termux/termux-float.git                  termux-apps-main/termux-float
-        [ -z "${DISABLE_WIDGET}" ] && git_clone_retry --depth 1 https://github.com/termux/termux-widget.git                 termux-apps-main/termux-widget
-        [ -z "${DISABLE_API}" ] && git_clone_retry --depth 1 https://github.com/termux/termux-api.git                    termux-apps-main/termux-api
-        [ -z "${DISABLE_BOOT}" ] && git_clone_retry --depth 1 https://github.com/termux/termux-boot.git                   termux-apps-main/termux-boot
-        [ -z "${DISABLE_STYLING}" ] && git_clone_retry --depth 1 https://github.com/termux/termux-styling.git                termux-apps-main/termux-styling
-        [ -z "${DISABLE_TERMINAL}" ] && git_clone_retry --depth 1 https://github.com/termux/termux-app.git                    termux-apps-main/termux-app
-        [ -z "${DISABLE_GUI}" ] && git_clone_retry --depth 1 https://github.com/termux/termux-gui.git                    termux-apps-main/termux-gui
+        if [ -z "${DISABLE_TASKER}" ]; then
+            git_clone_retry --depth 1 https://github.com/termux/termux-tasker.git termux-apps-main/termux-tasker
+        fi
+        if [ -z "${DISABLE_FLOAT}" ]; then
+            git_clone_retry --depth 1 https://github.com/termux/termux-float.git termux-apps-main/termux-float
+        fi
+        if [ -z "${DISABLE_WIDGET}" ]; then
+            git_clone_retry --depth 1 https://github.com/termux/termux-widget.git termux-apps-main/termux-widget
+        fi
+        if [ -z "${DISABLE_API}" ]; then
+            git_clone_retry --depth 1 https://github.com/termux/termux-api.git termux-apps-main/termux-api
+        fi
+        if [ -z "${DISABLE_BOOT}" ]; then
+            git_clone_retry --depth 1 https://github.com/termux/termux-boot.git termux-apps-main/termux-boot
+        fi
+        if [ -z "${DISABLE_STYLING}" ]; then
+            git_clone_retry --depth 1 https://github.com/termux/termux-styling.git termux-apps-main/termux-styling
+        fi
+        if [ -z "${DISABLE_TERMINAL}" ]; then
+            git_clone_retry --depth 1 https://github.com/termux/termux-app.git termux-apps-main/termux-app
+        fi
+        if [ -z "${DISABLE_GUI}" ]; then
+            git_clone_retry --depth 1 https://github.com/termux/termux-gui.git termux-apps-main/termux-gui
+        fi
         
         if [ -z "${DISABLE_TERMINAL}" ]; then
             # special case - for "F-Droid" Termux, it is necessary to move the termux-am-library subfolder of
@@ -83,7 +99,9 @@ download() {
         git_clone_retry --depth 1 https://github.com/termux-play-store/termux-packages.git    termux-packages-main
         git_clone_retry --depth 1 https://github.com/termux-play-store/termux-apps.git        termux-apps-main
     fi
-    [ -z "${DISABLE_X11}" ] && git_clone_retry --depth 1 --recursive https://github.com/termux/termux-x11.git        termux-apps-main/termux-x11
+    if [ -z "${DISABLE_X11}" ]; then
+        git_clone_retry --depth 1 --recursive https://github.com/termux/termux-x11.git termux-apps-main/termux-x11
+    fi
 }
 
 install_plugin() {
