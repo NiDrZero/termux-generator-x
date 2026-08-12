@@ -62,41 +62,78 @@ apply_patches() {
         echo "[*] No .patch files found in $srcdir. Skipping."
     else
         for patch in $patches; do
-            # Some patches target files belonging to an optional component
-            # (e.g. termux-x11) that may not have been cloned at all when
-            # that component was disabled via a --disable-* flag. Applying
-            # such a patch would always fail with "can't find file to
-            # patch", aborting the whole build for a component we never
-            # intended to build. Detect this by checking whether every
-            # pre-image file referenced by the patch (the "--- a/<path>"
-            # lines) actually exists in the target tree; if NONE of them
-            # do, the patch's target component is simply absent, so skip it
-            # instead of hard-failing. If only SOME are missing, that's a
-            # real mismatch, so fall through to the normal apply attempt
-            # and let it fail loudly.
-            local targets=$(grep -oE '^--- a/.+' "$patch" | sed -E 's#^--- a/##')
-            if [ -n "$targets" ]; then
-                local any_present=0
-                local any_missing=0
-                while IFS= read -r target; do
-                    [ -z "$target" ] && continue
-                    if [ -e "$target" ]; then
-                        any_present=1
+            # A single patch file can bundle per-file diffs for several
+            # independent, optionally-cloned components -- e.g. local-maven.patch
+            # contains separate hunks for termux-tasker, termux-float,
+            # termux-api and termux-widget all in one file. Applying it
+            # verbatim fails outright (and aborts the whole build) whenever
+            # ANY one of those components was disabled and therefore never
+            # cloned, even though the hunks for components that ARE present
+            # would apply cleanly on their own.
+            #
+            # Split the patch on its "--- a/<path>" file-header lines (the
+            # standard unified-diff per-file boundary). For each chunk, look
+            # at the TOP-LEVEL directory of its target path (e.g. "termux-x11"
+            # in "termux-x11/shell-loader/...", or "scripts" in
+            # "scripts/free-space.sh") rather than the exact file:
+            #   - If that top-level directory doesn't exist at all, the whole
+            #     component was never cloned (an optional app/dep disabled via
+            #     a --disable-* flag) -- drop the chunk silently, it has
+            #     nothing to apply to and was never expected to.
+            #   - If the top-level directory DOES exist but the specific file
+            #     inside it is missing/changed, that's real upstream drift in
+            #     a component we do have -- keep the chunk so `patch` attempts
+            #     it and fails loudly, same as before, so drift is never
+            #     silently masked.
+            # Content before the first file header (if any) is always kept.
+            # If every chunk gets dropped, the patch's entire target
+            # component is absent -- skip the whole file with a clear message
+            # instead of hard-failing.
+            local headerlines=$(grep -n '^--- a/' "$patch" | cut -d: -f1)
+            local filtered
+            filtered=$(mktemp)
+
+            if [ -z "$headerlines" ]; then
+                # No recognizable per-file headers (non-standard format) --
+                # can't safely filter, fall back to applying as-is.
+                cp "$patch" "$filtered"
+            else
+                local splitdir
+                splitdir=$(mktemp -d)
+                csplit -s -z -f "$splitdir/chunk_" "$patch" $headerlines
+
+                : > "$filtered"
+                local cf
+                for cf in "$splitdir"/chunk_*; do
+                    local firstline
+                    firstline=$(head -n1 "$cf")
+                    if [[ "$firstline" == "--- a/"* ]]; then
+                        local target="${firstline#--- a/}"
+                        local topdir="${target%%/*}"
+                        if [ -e "$topdir" ]; then
+                            cat "$cf" >> "$filtered"
+                        fi
                     else
-                        any_missing=1
+                        # Preamble content before the first file header.
+                        cat "$cf" >> "$filtered"
                     fi
-                done <<< "$targets"
-                if [ "$any_present" -eq 0 ] && [ "$any_missing" -eq 1 ]; then
-                    echo "[*] Skipping patch: $(basename "$patch") (target component not present, likely disabled)"
-                    continue
-                fi
+                done
+                rm -rf "$splitdir"
+            fi
+
+            if ! grep -q '^--- a/' "$filtered"; then
+                echo "[*] Skipping patch: $(basename "$patch") (target component(s) not present, likely disabled)"
+                rm -f "$filtered"
+                continue
             fi
 
             echo "[*] Applying patch: $(basename "$patch")"
-            if ! patch -p1 < "$patch"; then
+            if ! patch -p1 < "$filtered"; then
                 echo "[!] Failed to apply patch: $(basename "$patch")"
+                rm -f "$filtered"
                 exit 1
             fi
+            rm -f "$filtered"
         done
     fi
 
