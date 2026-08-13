@@ -60,30 +60,48 @@ clean_artifacts() {
 # Funktion, um Repositories herunterzuladen
 download() {
     if [[ "$TERMUX_APP_TYPE" == "f-droid" ]]; then
-        git clone --depth 1 https://github.com/termux/termux-packages.git               termux-packages-main
+        git_clone_retry --depth 1 https://github.com/termux/termux-packages.git               termux-packages-main
         
-        [ -z "${DISABLE_TASKER}" ] && git clone --depth 1 https://github.com/termux/termux-tasker.git                 termux-apps-main/termux-tasker
-        [ -z "${DISABLE_FLOAT}" ] && git clone --depth 1 https://github.com/termux/termux-float.git                  termux-apps-main/termux-float
-        [ -z "${DISABLE_WIDGET}" ] && git clone --depth 1 https://github.com/termux/termux-widget.git                 termux-apps-main/termux-widget
-        [ -z "${DISABLE_API}" ] && git clone --depth 1 https://github.com/termux/termux-api.git                    termux-apps-main/termux-api
-        [ -z "${DISABLE_BOOT}" ] && git clone --depth 1 https://github.com/termux/termux-boot.git                   termux-apps-main/termux-boot
-        [ -z "${DISABLE_STYLING}" ] && git clone --depth 1 https://github.com/termux/termux-styling.git                termux-apps-main/termux-styling
-        [ -z "${DISABLE_TERMINAL}" ] && git clone --depth 1 https://github.com/termux/termux-app.git                    termux-apps-main/termux-app
-        [ -z "${DISABLE_GUI}" ] && git clone --depth 1 https://github.com/termux/termux-gui.git                    termux-apps-main/termux-gui
+        if [ -z "${DISABLE_TASKER}" ]; then
+            git_clone_retry --depth 1 https://github.com/termux/termux-tasker.git termux-apps-main/termux-tasker
+        fi
+        if [ -z "${DISABLE_FLOAT}" ]; then
+            git_clone_retry --depth 1 https://github.com/termux/termux-float.git termux-apps-main/termux-float
+        fi
+        if [ -z "${DISABLE_WIDGET}" ]; then
+            git_clone_retry --depth 1 https://github.com/termux/termux-widget.git termux-apps-main/termux-widget
+        fi
+        if [ -z "${DISABLE_API}" ]; then
+            git_clone_retry --depth 1 https://github.com/termux/termux-api.git termux-apps-main/termux-api
+        fi
+        if [ -z "${DISABLE_BOOT}" ]; then
+            git_clone_retry --depth 1 https://github.com/termux/termux-boot.git termux-apps-main/termux-boot
+        fi
+        if [ -z "${DISABLE_STYLING}" ]; then
+            git_clone_retry --depth 1 https://github.com/termux/termux-styling.git termux-apps-main/termux-styling
+        fi
+        if [ -z "${DISABLE_TERMINAL}" ]; then
+            git_clone_retry --depth 1 https://github.com/termux/termux-app.git termux-apps-main/termux-app
+        fi
+        if [ -z "${DISABLE_GUI}" ]; then
+            git_clone_retry --depth 1 https://github.com/termux/termux-gui.git termux-apps-main/termux-gui
+        fi
         
         if [ -z "${DISABLE_TERMINAL}" ]; then
             # special case - for "F-Droid" Termux, it is necessary to move the termux-am-library subfolder of
             # the termux-am-library repository, which contains its actual code, into the termux-app folder,
             # where its code needs to be patched and compiled into the main "F-Droid" Termux APK
-            git clone --depth 1 https://github.com/termux/termux-am-library.git             termux-apps-main/termux-am-library
+            git_clone_retry --depth 1 https://github.com/termux/termux-am-library.git             termux-apps-main/termux-am-library
             mv termux-apps-main/termux-am-library/termux-am-library/                        termux-apps-main/termux-app/termux-am-library
             rm -rf                                                                          termux-apps-main/termux-am-library/
         fi
     else
-        git clone --depth 1 https://github.com/termux-play-store/termux-packages.git    termux-packages-main
-        git clone --depth 1 https://github.com/termux-play-store/termux-apps.git        termux-apps-main
+        git_clone_retry --depth 1 https://github.com/termux-play-store/termux-packages.git    termux-packages-main
+        git_clone_retry --depth 1 https://github.com/termux-play-store/termux-apps.git        termux-apps-main
     fi
-    [ -z "${DISABLE_X11}" ] && git clone --depth 1 --recursive https://github.com/termux/termux-x11.git        termux-apps-main/termux-x11
+    if [ -z "${DISABLE_X11}" ]; then
+        git_clone_retry --depth 1 --recursive https://github.com/termux/termux-x11.git termux-apps-main/termux-x11
+    fi
 }
 
 install_plugin() {

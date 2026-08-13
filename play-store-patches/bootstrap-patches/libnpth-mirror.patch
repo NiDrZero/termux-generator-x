@@ -1,0 +1,14 @@
+--- a/packages/libnpth/build.sh
++++ b/packages/libnpth/build.sh
+@@ -4,7 +4,10 @@
+ TERMUX_PKG_MAINTAINER="@termux"
+ TERMUX_PKG_VERSION=1.6
+ TERMUX_PKG_REVISION=3
++# gnupg.org's own FTP server returns HTTP 403 to automated/CI clients (confirmed
++# reproducible from GitHub Actions runners on 2026-08-13). Use a verified public
++# mirror instead; content is byte-identical (same SHA256) to the upstream tarball.
+-TERMUX_PKG_SRCURL=https://www.gnupg.org/ftp/gcrypt/npth/npth-${TERMUX_PKG_VERSION}.tar.bz2
++TERMUX_PKG_SRCURL=https://mirrors.dotsrc.org/gcrypt/npth/npth-${TERMUX_PKG_VERSION}.tar.bz2
+ TERMUX_PKG_SHA256=1393abd9adcf0762d34798dc34fdcf4d0d22a8410721e76f1e3afcd1daa4e2d1
+ TERMUX_PKG_BREAKS="libnpth-dev"
+ TERMUX_PKG_REPLACES="libnpth-dev"
