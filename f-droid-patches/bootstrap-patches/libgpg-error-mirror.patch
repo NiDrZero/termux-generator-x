@@ -1,0 +1,15 @@
+--- a/packages/libgpg-error/build.sh
++++ b/packages/libgpg-error/build.sh
+@@ -3,7 +3,11 @@
+ TERMUX_PKG_LICENSE="LGPL-2.1"
+ TERMUX_PKG_MAINTAINER="@termux"
+ TERMUX_PKG_VERSION="1.61"
+-TERMUX_PKG_SRCURL="https://www.gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${TERMUX_PKG_VERSION}.tar.bz2"
++# gnupg.org's own FTP server returns HTTP 403 to automated/CI clients (confirmed
++# reproducible from GitHub Actions runners on 2026-08-13, across two separate
++# workflow runs). Use a verified public mirror instead; content is byte-identical
++# (same SHA256) to the upstream tarball.
++TERMUX_PKG_SRCURL="https://mirrors.dotsrc.org/gcrypt/libgpg-error/libgpg-error-${TERMUX_PKG_VERSION}.tar.bz2"
+ TERMUX_PKG_SHA256=7a85413f2bc354f4f8aa832b718af122e48965e9e0eb9012ee659c13c6385c93
+ TERMUX_PKG_BREAKS="libgpg-error-dev"
+ TERMUX_PKG_REPLACES="libgpg-error-dev"
