@@ -1,0 +1,14 @@
+--- a/packages/atool/build.sh
++++ b/packages/atool/build.sh
+@@ -5,7 +5,10 @@
+ TERMUX_PKG_MAINTAINER="@termux"
+ TERMUX_PKG_VERSION="0.39.0"
+ TERMUX_PKG_REVISION=3
+-TERMUX_PKG_SRCURL="https://download.savannah.gnu.org/releases/atool/atool-$TERMUX_PKG_VERSION.tar.gz"
++# NOTE: download.savannah.gnu.org returns persistent HTTP 502 errors from
++# CI/cloud-runner IPs (Savannah infra overload). Repointed to a verified
++# byte-identical mirror (matching SHA256) to unblock automated builds.
++TERMUX_PKG_SRCURL="https://mirrors.ocf.berkeley.edu/nongnu/atool/atool-$TERMUX_PKG_VERSION.tar.gz"
+ TERMUX_PKG_SHA256="aaf60095884abb872e25f8e919a8a63d0dabaeca46faeba87d12812d6efc703b"
+ TERMUX_PKG_DEPENDS="perl"
+ TERMUX_PKG_BUILD_IN_SRC=true

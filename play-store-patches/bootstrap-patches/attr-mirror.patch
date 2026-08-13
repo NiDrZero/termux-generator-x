@@ -1,0 +1,14 @@
+--- a/packages/attr/build.sh
++++ b/packages/attr/build.sh
+@@ -3,7 +3,10 @@
+ TERMUX_PKG_LICENSE="GPL-2.0"
+ TERMUX_PKG_MAINTAINER="@termux"
+ TERMUX_PKG_VERSION="2.6.0"
+-TERMUX_PKG_SRCURL="http://download.savannah.gnu.org/releases/attr/attr-${TERMUX_PKG_VERSION}.tar.gz"
++# NOTE: download.savannah.gnu.org returns persistent HTTP 502 errors from
++# CI/cloud-runner IPs (Savannah infra overload). Repointed to a verified
++# byte-identical mirror (matching SHA256) to unblock automated builds.
++TERMUX_PKG_SRCURL="https://mirrors.ocf.berkeley.edu/nongnu/attr/attr-${TERMUX_PKG_VERSION}.tar.gz"
+ TERMUX_PKG_SHA256=d42fa374513180bb48cb11a46696f488240e5124ff1e6ad88b0abff706985612
+ TERMUX_PKG_AUTO_UPDATE=true
+ TERMUX_PKG_BREAKS="attr-dev"

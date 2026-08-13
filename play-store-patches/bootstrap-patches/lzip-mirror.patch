@@ -1,0 +1,14 @@
+--- a/packages/lzip/build.sh
++++ b/packages/lzip/build.sh
+@@ -3,7 +3,10 @@
+ TERMUX_PKG_LICENSE="GPL-3.0"
+ TERMUX_PKG_MAINTAINER="@termux"
+ TERMUX_PKG_VERSION="1.26"
+-TERMUX_PKG_SRCURL=https://download.savannah.gnu.org/releases/lzip/lzip-${TERMUX_PKG_VERSION}.tar.lz
++# NOTE: download.savannah.gnu.org returns persistent HTTP 502 errors from
++# CI/cloud-runner IPs (Savannah infra overload). Repointed to a verified
++# byte-identical mirror (matching SHA256) to unblock automated builds.
++TERMUX_PKG_SRCURL=https://mirrors.ocf.berkeley.edu/nongnu/lzip/lzip-${TERMUX_PKG_VERSION}.tar.lz
+ TERMUX_PKG_SHA256=1746f1e4ec4359a728692ce2db45641c9267b048aa13c044e9d581d50394713d
+ TERMUX_PKG_AUTO_UPDATE=true
+ TERMUX_PKG_DEPENDS="libc++"

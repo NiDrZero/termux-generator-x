@@ -1,0 +1,14 @@
+--- a/packages/libacl/build.sh
++++ b/packages/libacl/build.sh
+@@ -3,7 +3,10 @@
+ TERMUX_PKG_LICENSE="LGPL-2.1, GPL-2.0"
+ TERMUX_PKG_MAINTAINER="@termux"
+ TERMUX_PKG_VERSION="2.4.0"
+-TERMUX_PKG_SRCURL=https://download.savannah.gnu.org/releases/acl/acl-${TERMUX_PKG_VERSION}.tar.gz
++# NOTE: download.savannah.gnu.org returns persistent HTTP 502 errors from
++# CI/cloud-runner IPs (Savannah infra overload). Repointed to a verified
++# byte-identical mirror (matching SHA256) to unblock automated builds.
++TERMUX_PKG_SRCURL=https://mirrors.ocf.berkeley.edu/nongnu/acl/acl-${TERMUX_PKG_VERSION}.tar.gz
+ TERMUX_PKG_SHA256=73c853c3d44e1f693e5a96a986f1bd19d3d0dac2c7d453e796177774bc4e5f6a
+ TERMUX_PKG_AUTO_UPDATE=true
+ TERMUX_PKG_DEPENDS="attr"
