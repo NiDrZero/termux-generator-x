@@ -1,0 +1,14 @@
+--- a/packages/gpgmepp/build.sh
++++ b/packages/gpgmepp/build.sh
+@@ -3,7 +3,10 @@
+ TERMUX_PKG_LICENSE="LGPL-2.1"
+ TERMUX_PKG_MAINTAINER="@termux"
+ TERMUX_PKG_VERSION="2.1.0"
++# gnupg.org's own FTP server returns HTTP 403 to automated/CI clients (confirmed
++# reproducible from GitHub Actions runners on 2026-08-13). Use a verified public
++# mirror instead; content is byte-identical (same SHA256) to the upstream tarball.
+-TERMUX_PKG_SRCURL="https://www.gnupg.org/ftp/gcrypt/gpgmepp/gpgmepp-${TERMUX_PKG_VERSION}.tar.xz"
++TERMUX_PKG_SRCURL="https://mirrors.dotsrc.org/gcrypt/gpgmepp/gpgmepp-${TERMUX_PKG_VERSION}.tar.xz"
+ TERMUX_PKG_SHA256=57f804468f0204504b172c6b139cb05124b4263be7ad514932c7c4c5062a16e2
+ TERMUX_PKG_AUTO_UPDATE=true
+ TERMUX_PKG_DEPENDS="gpgme, libc++, libgpg-error"

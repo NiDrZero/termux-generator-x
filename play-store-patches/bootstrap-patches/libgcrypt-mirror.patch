@@ -1,0 +1,14 @@
+--- a/packages/libgcrypt/build.sh
++++ b/packages/libgcrypt/build.sh
+@@ -4,7 +4,10 @@
+ TERMUX_PKG_LICENSE_FILE="COPYING, COPYING.LIB, LICENSES"
+ TERMUX_PKG_MAINTAINER="@termux"
+ TERMUX_PKG_VERSION="1.12.2"
++# gnupg.org's own FTP server returns HTTP 403 to automated/CI clients (confirmed
++# reproducible from GitHub Actions runners on 2026-08-13). Use a verified public
++# mirror instead; content is byte-identical (same SHA256) to the upstream tarball.
+-TERMUX_PKG_SRCURL=https://www.gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${TERMUX_PKG_VERSION}.tar.bz2
++TERMUX_PKG_SRCURL=https://mirrors.dotsrc.org/gcrypt/libgcrypt/libgcrypt-${TERMUX_PKG_VERSION}.tar.bz2
+ TERMUX_PKG_SHA256=7ce33c2492221a0436f96a8500215e9f3e3dcb5fd26a757cd415e7a843babd5e
+ TERMUX_PKG_DEPENDS="libgpg-error"
+ TERMUX_PKG_BREAKS="libgcrypt-dev"
