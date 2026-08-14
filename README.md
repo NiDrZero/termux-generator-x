@@ -1,3 +1,7 @@
+# !!!Disclaimer!!!
+
+This fork is being modified via Perplexity Computer solely for myself.
+
 # termux-generator
 
 This script builds a [termux/termux-app](https://github.com/termux/termux-app) or [termux-play-store/termux-apps/termux-app](https://github.com/termux-play-store/termux-apps/tree/main/termux-app) from source, but allows changing the package name from `com.termux` to anything else with a single command.
